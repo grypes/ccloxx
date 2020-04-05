@@ -2,8 +2,8 @@ var a = 0;
 var b = 1;
 
 while (a < 100) {
+  print b;
   var c = a + b;
   a = b;
   b = c;
 }
-print a;

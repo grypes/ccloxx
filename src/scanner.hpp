@@ -66,9 +66,9 @@ class Token
 public:
     TokenType type;
     std::string lexeme;
-    int line;
+    size_t line;
 
-    Token(const TokenType type_, const std::string &lexeme_, const int line_)
+    Token(const TokenType type_, const std::string &lexeme_, const size_t line_)
         : type(type_), lexeme(lexeme_), line(line_) {}
 
     virtual std::unique_ptr<Token> clone() const
@@ -87,7 +87,7 @@ class StrToken : public Token
 public:
     std::string literal;
 
-    StrToken(const std::string &lexeme_, const std::string &literal_, const int line_)
+    StrToken(const std::string &lexeme_, const std::string &literal_, const size_t line_)
         : Token(TokenType::STRING, lexeme_, line_), literal(literal_) {}
 
     std::unique_ptr<Token> clone() const override
@@ -106,7 +106,7 @@ class NumToken : public Token
 public:
     double literal;
 
-    NumToken(const std::string &lexeme_, const double literal_, const int line_)
+    NumToken(const std::string &lexeme_, const double literal_, const size_t line_)
         : Token(TokenType::NUMBER, lexeme_, line_), literal(literal_) {}
 
     std::unique_ptr<Token> clone() const override
@@ -131,9 +131,9 @@ private:
 
     std::string source;
     std::vector<std::unique_ptr<Token>> tokens;
-    int start = 0;
-    int current = 0;
-    int line = 1;
+    size_t start = 0;
+    size_t current = 0;
+    size_t line = 1;
 
     ErrorHandler &errorhandler;
 

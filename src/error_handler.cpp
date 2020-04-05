@@ -14,7 +14,7 @@ void ErrorHandler::report()
     }
 }
 
-void ErrorHandler::add(int line_, const std::string &where_, const std::string &message_)
+void ErrorHandler::add(size_t line_, const std::string &where_, const std::string &message_)
 {
     errorList.push_back({line_, where_, message_});
     foundError = true;

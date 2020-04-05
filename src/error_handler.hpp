@@ -11,14 +11,14 @@ class ErrorHandler
 public:
     struct Info
     {
-        int line;
+        size_t line;
         std::string where;
         std::string message;
     };
 
     ErrorHandler();
     void report();
-    void add(int line_, const std::string &where_, const std::string &message_);
+    void add(size_t line_, const std::string &where_, const std::string &message_);
 
 private:
     std::vector<Info> errorList;

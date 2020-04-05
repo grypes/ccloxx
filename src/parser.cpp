@@ -48,13 +48,13 @@ std::unique_ptr<Stmt> Parser::statement()
         return whileStatement();
     if (match(TokenType::PRINT))
         return printStatement();
-    if (match(TokenType::LEFT_BRACE)) {
+    if (match(TokenType::LEFT_BRACE))
+    {
         std::vector<std::shared_ptr<Stmt>> statements_;
-        for(auto &s : blocks())
+        for (auto &s : blocks())
             statements_.push_back(std::move(s));
         return std::unique_ptr<BlockStmt>(new BlockStmt(statements_));
     }
-        
 
     return expressionStatement();
 }

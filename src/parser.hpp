@@ -13,7 +13,7 @@ class Parser
 private:
     std::vector<std::unique_ptr<Token>> tokens;
     std::vector<std::shared_ptr<Stmt>> statements;
-    int current = 0;
+    size_t current = 0;
 
 public:
     Parser(std::vector<std::unique_ptr<Token>> tokens_, ErrorHandler &error_) : tokens(std::move(tokens_)), errorhandler(error_) {}
