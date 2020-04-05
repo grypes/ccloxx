@@ -1,3 +1,13 @@
+# Customer
+*.ilk
+*.pdb
+*.cmake
+*Cache*
+
+.vscode/*
+CMakeFiles/*
+build/*
+
 # Prerequisites
 *.d
 
