@@ -1,0 +1,31 @@
+fun makeCounter() {
+  var i = 0;
+  fun count() {
+    i = i + 1;
+    print i;
+  }
+
+  return count;
+}
+
+var counter1 = makeCounter();
+counter1(); // "1".
+counter1(); // "2".
+counter1(); // "3".
+
+var counter2 = makeCounter();
+counter2(); // "1".
+
+// ----------- another closure -----------
+
+fun line_conf(a, b) {
+    fun line(x) {
+        return a*x + b;
+    }
+    return line;
+}
+
+var line1 = line_conf(1, 1);
+var line2 = line_conf(4, 5);
+print line1(5); // "6".
+print line2(4); // "21".

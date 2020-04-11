@@ -3,10 +3,10 @@
 
 #include <unordered_map>
 
-#include "object.hpp"
-
 namespace lox
 {
+
+class Object;
 
 class Env
 {

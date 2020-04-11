@@ -4,8 +4,13 @@
 #include <memory>
 #include <string>
 
+#include "ast.hpp"
+
 namespace lox
 {
+
+class Env;
+class Interpreter;
 
 enum class ObjectType
 {
@@ -13,6 +18,7 @@ enum class ObjectType
     NumType,
     NilType,
     StrType,
+    FuncType,
 };
 
 class Object
@@ -50,7 +56,8 @@ public:
         return std::unique_ptr<NumObj>(new NumObj(value));
     }
 
-    std::string toString() const override {
+    std::string toString() const override
+    {
         return std::string(std::to_string(value));
     }
 };
@@ -74,7 +81,8 @@ public:
         return std::unique_ptr<StrObj>(new StrObj(value));
     }
 
-    std::string toString() const override {
+    std::string toString() const override
+    {
         return value;
     }
 };
@@ -100,10 +108,10 @@ public:
         return std::unique_ptr<BoolObj>(new BoolObj(value));
     }
 
-    std::string toString() const override {
+    std::string toString() const override
+    {
         return std::to_string(value);
     }
-
 };
 
 class NilObj : public Object
@@ -120,9 +128,41 @@ public:
         return std::unique_ptr<NilObj>();
     }
 
-    std::string toString() const override {
+    std::string toString() const override
+    {
         return "Nil";
     }
+};
+
+class FuncObj : public Object
+{
+public:
+    FuncStmt *declaration;
+
+    std::shared_ptr<Env> closure;
+
+    FuncObj(FuncStmt *declare_, std::shared_ptr<Env> closure_) : Object(ObjectType::FuncType),
+                                                                 declaration(declare_),
+                                                                 closure(closure_) {}
+
+    bool isTrue() const override { return false; }
+
+    bool equals(Object *other) const override { return other->type == ObjectType::FuncType; }
+
+    std::unique_ptr<Object> clone() const override
+    {
+        return std::unique_ptr<FuncObj>(new FuncObj(declaration, closure));
+    }
+
+    std::string toString() const override
+    {
+        return "<fn " + declaration->name->lexeme + ">";
+    }
+
+    size_t arity()
+    {
+        return declaration->params.size();
+    };
 };
 
 } // namespace lox

@@ -8,17 +8,23 @@
 
 namespace lox
 {
+using ExprPtr = std::shared_ptr<Expr>;
+using StmtPtr = std::shared_ptr<Stmt>;
+
+using ExprList = std::vector<ExprPtr>;
+using StmtList = std::vector<StmtPtr>;
+
 class Parser
 {
 private:
-    std::vector<std::unique_ptr<Token>> tokens;
-    std::vector<std::shared_ptr<Stmt>> statements;
+    TokenList tokens;
+    StmtList statements;
     size_t current = 0;
 
 public:
-    Parser(std::vector<std::unique_ptr<Token>> tokens_, ErrorHandler &error_) : tokens(std::move(tokens_)), errorhandler(error_) {}
+    Parser(TokenList &&tokens_, ErrorHandler &error_) : tokens(tokens_), errorhandler(error_) {}
 
-    std::vector<std::shared_ptr<Stmt>> parse();
+    StmtList parse();
 
 private:
     template <typename... TokenT>
@@ -26,49 +32,49 @@ private:
 
     ErrorHandler &errorhandler;
 
-    std::unique_ptr<Stmt> declaration();
+    StmtPtr declaration();
 
-    std::unique_ptr<Stmt> classDecl();
+    StmtPtr function(const std::string &type);
 
-    std::unique_ptr<Stmt> function();
+    StmtPtr varDecl();
 
-    std::unique_ptr<Stmt> varDecl();
+    StmtPtr statement();
 
-    std::unique_ptr<Stmt> statement();
+    StmtPtr ifStatement();
 
-    std::unique_ptr<Stmt> ifStatement();
+    StmtPtr forStatement();
 
-    std::unique_ptr<Stmt> forStatement();
+    StmtPtr whileStatement();
 
-    std::unique_ptr<Stmt> whileStatement();
+    StmtPtr printStatement();
 
-    std::unique_ptr<Stmt> printStatement();
+    StmtPtr returnStatement();
 
-    std::vector<std::unique_ptr<Stmt>> blocks();
+    StmtList blocks();
 
-    std::unique_ptr<Stmt> expressionStatement();
+    StmtPtr expressionStatement();
 
-    std::unique_ptr<Expr> assignment();
+    ExprPtr assignment();
 
-    std::unique_ptr<Expr> logicOr();
+    ExprPtr logicOr();
 
-    std::unique_ptr<Expr> logicAnd();
+    ExprPtr logicAnd();
 
-    std::unique_ptr<Expr> equality();
+    ExprPtr equality();
 
-    std::unique_ptr<Expr> comparison();
+    ExprPtr comparison();
 
-    std::unique_ptr<Expr> addition();
+    ExprPtr addition();
 
-    std::unique_ptr<Expr> multiplication();
+    ExprPtr multiplication();
 
-    std::unique_ptr<Expr> unary();
+    ExprPtr unary();
 
-    std::unique_ptr<Expr> call();
+    ExprPtr call();
 
-    std::unique_ptr<Expr> finishCall(std::unique_ptr<Expr> callee);
+    ExprPtr finishCall(ExprPtr callee);
 
-    std::unique_ptr<Expr> primary();
+    ExprPtr primary();
 
     bool check(TokenType type);
 
@@ -80,14 +86,14 @@ private:
 
     Token *previous();
 
-    std::unique_ptr<Token> releasePrevious();
+    TokenPtr releasePrevious();
 
-    std::unique_ptr<Expr> expression()
+    ExprPtr expression()
     {
         return assignment();
     }
 
-    std::unique_ptr<Token> consume(TokenType type_, const std::string &error_message);
+    TokenPtr consume(TokenType type_, const std::string &error_message);
 };
 } // namespace lox
 

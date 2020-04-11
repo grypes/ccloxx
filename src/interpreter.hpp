@@ -4,51 +4,54 @@
 #include "ast.hpp"
 #include "object.hpp"
 #include "env.hpp"
+#include "parser.hpp"
 
 namespace lox
 {
+
+using ObjPtr = std::unique_ptr<Object>;
+using ObjList = std::vector<ObjPtr>;
+using EnvPtr = std::shared_ptr<Env>;
+
 class Interpreter : public ExprVisitor, StmtVisitor
 {
-    std::unique_ptr<Object> value;
-    std::shared_ptr<Env> env;
-
 public:
+    EnvPtr env;
+    ObjPtr value;
+
     Interpreter() : value(nullptr), env(new Env()) {}
 
-    void interpret(std::vector<std::shared_ptr<Stmt>> statements);
+    void interpret(StmtList &statements);
+    
 
 private:
     void execute(Stmt *stmt);
 
-    std::unique_ptr<Object> evaluate(Expr *expr);
+    ObjPtr evaluate(Expr *expr);
+
+    void call(FuncObj *callfunc, ObjList &&arguments);
 
     /// Expressions.
     void visit(AssignExpr *expr) override;
     void visit(BinaryExpr *expr) override;
-    // void visit(CallExpr *expr) override;
-    // void visit(GetExpr *expr) override;
+    void visit(CallExpr *expr) override;
     void visit(GroupingExpr *expr) override;
     void visit(NilLiteralExpr *expr) override;
     void visit(BoolLiteralExpr *expr) override;
     void visit(StrLiteralExpr *expr) override;
     void visit(NumLiteralExpr *expr) override;
     void visit(LogicExpr *expr) override;
-    // void visit(SetExpr *expr) override;
-    // void visit(SuperExpr *expr) override;
-    // void visit(ThisExpr *expr) override;
     void visit(UnaryExpr *expr) override;
     void visit(VarExpr *expr) override;
 
     /// Statements.
     void visit(BlockStmt *stmt) override;
-    void executeBlock(std::vector<std::shared_ptr<Stmt>> statements_, std::shared_ptr<Env> env_);
-
-    // void visit(ClassStmt *stmt) override;
+    void executeBlock(StmtList &statements_, EnvPtr env_);
     void visit(ExprStmt *stmt) override;
-    // void visit(FuncStmt *stmt) override;
+    void visit(FuncStmt *stmt) override;
     void visit(IfStmt *stmt) override;
     void visit(PrintStmt *stmt) override;
-    // void visit(ReturnStmt *stmt) override;
+    void visit(ReturnStmt *stmt) override;
     void visit(VarStmt *stmt) override;
     void visit(WhileStmt *stmt) override;
 };

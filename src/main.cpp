@@ -18,10 +18,10 @@ static void run(const std::string &source, Interpreter &interpreter)
     ErrorHandler errors;
 
     Scanner scanner(source, errors);
-    std::vector<std::unique_ptr<Token>> tokens = scanner.scanTokens();
+    TokenList tokens = scanner.scanTokens();
 
     Parser parser(std::move(tokens), errors);
-    std::vector<std::shared_ptr<Stmt>> stmts = parser.parse();
+    StmtList stmts = parser.parse();
 
     interpreter.interpret(stmts);
 }

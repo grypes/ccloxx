@@ -4,7 +4,7 @@
 
 using namespace lox;
 
-void Interpreter::interpret(std::vector<std::shared_ptr<Stmt>> statements)
+void Interpreter::interpret(StmtList &statements)
 {
     for (auto &stmt : statements)
         execute(stmt.get());
@@ -17,13 +17,13 @@ void Interpreter::execute(Stmt *stmt)
 
 void Interpreter::visit(BlockStmt *stmt)
 {
-    std::shared_ptr<Env> new_env = std::make_shared<Env>(env);
+    EnvPtr new_env = std::make_shared<Env>(env);
     executeBlock(stmt->statements, new_env);
 }
 
-void Interpreter::executeBlock(std::vector<std::shared_ptr<Stmt>> statements_, std::shared_ptr<Env> env_)
+void Interpreter::executeBlock(StmtList &statements_, EnvPtr env_)
 {
-    std::shared_ptr<Env> previous = env;
+    EnvPtr previous = env;
 
     env = env_;
     for (auto &stmt : statements_)
@@ -31,6 +31,12 @@ void Interpreter::executeBlock(std::vector<std::shared_ptr<Stmt>> statements_, s
         execute(stmt.get());
     }
     env = previous;
+}
+
+void Interpreter::visit(FuncStmt *stmt)
+{
+    std::unique_ptr<Object> function = std::unique_ptr<FuncObj>(new FuncObj(stmt, env));
+    env->define(stmt->name->lexeme, std::move(function));
 }
 
 void Interpreter::visit(ExprStmt *stmt)
@@ -77,7 +83,16 @@ void Interpreter::visit(WhileStmt *stmt)
     value = nullptr;
 }
 
-std::unique_ptr<Object> Interpreter::evaluate(Expr *expr)
+void Interpreter::visit(ReturnStmt *stmt)
+{
+    if (stmt->value != nullptr)
+        value = evaluate(stmt->value.get());
+    else
+        value = std::unique_ptr<Object>(new NilObj());
+    throw BoolObj(true);
+}
+
+ObjPtr Interpreter::evaluate(Expr *expr)
 {
     expr->accept(*this);
     return std::move(value);
@@ -91,8 +106,8 @@ void Interpreter::visit(AssignExpr *expr)
 
 void Interpreter::visit(BinaryExpr *expr)
 {
-    std::unique_ptr<Object> left = std::unique_ptr<Object>(evaluate(expr->left.get()));
-    std::unique_ptr<Object> right = std::unique_ptr<Object>(evaluate(expr->right.get()));
+    ObjPtr left = ObjPtr(evaluate(expr->left.get()));
+    ObjPtr right = ObjPtr(evaluate(expr->right.get()));
 
     switch (expr->op->type)
     {
@@ -179,6 +194,40 @@ void Interpreter::visit(BinaryExpr *expr)
     }
 }
 
+void Interpreter::visit(CallExpr *expr)
+{
+    ObjPtr callee = evaluate(expr->callee.get());
+    ObjList arguments;
+    for (auto arg : expr->arguments)
+        arguments.push_back(evaluate(arg.get()));
+
+    FuncObj *callFunc = static_cast<FuncObj *>(callee.get());
+    // if(arguments.size() != callFunc->arity())
+    // error
+
+    call(callFunc, std::move(arguments));
+}
+
+void Interpreter::call(FuncObj *callfunc, ObjList &&arguments)
+{
+    EnvPtr new_env = std::make_shared<Env>(callfunc->closure);
+    EnvPtr previous = env;
+
+    for (size_t i = 0; i < callfunc->declaration->params.size(); i++)
+    {
+        new_env->define(callfunc->declaration->params[i].get()->lexeme, std::move(arguments[i]));
+    }
+    try
+    {
+        executeBlock(callfunc->declaration->body, new_env);
+    }
+    catch (BoolObj &)
+    {
+        env = previous;
+        return;
+    }
+}
+
 void Interpreter::visit(GroupingExpr *expr)
 {
     value = evaluate(expr->expression.get());
@@ -206,7 +255,7 @@ void Interpreter::visit(StrLiteralExpr *expr)
 
 void Interpreter::visit(LogicExpr *expr)
 {
-    std::unique_ptr<Object> left = std::unique_ptr<Object>(evaluate(expr->left.get()));
+    ObjPtr left = ObjPtr(evaluate(expr->left.get()));
 
     value.reset(new BoolObj(left->isTrue()));
 
@@ -223,7 +272,7 @@ void Interpreter::visit(LogicExpr *expr)
 
 void Interpreter::visit(UnaryExpr *expr)
 {
-    std::unique_ptr<Object> right = std::unique_ptr<Object>(evaluate(expr->right.get()));
+    ObjPtr right = ObjPtr(evaluate(expr->right.get()));
 
     switch (expr->op->type)
     {

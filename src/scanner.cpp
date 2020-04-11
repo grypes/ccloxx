@@ -25,7 +25,7 @@ Scanner::Scanner(const std::string &source_, ErrorHandler &handler_)
     keywords["while"] = TokenType::WHILE;
 }
 
-std::vector<std::unique_ptr<Token>> Scanner::scanTokens()
+TokenList Scanner::scanTokens()
 {
     while (!isAtEnd())
     {
@@ -33,8 +33,8 @@ std::vector<std::unique_ptr<Token>> Scanner::scanTokens()
         scanToken();
     }
 
-    tokens.push_back(std::unique_ptr<Token>(new Token(TokenType::END_OF_FILE, "", line)));
-    return std::move(tokens);
+    tokens.push_back(std::make_shared<Token>(TokenType::END_OF_FILE, "", line));
+    return tokens;
 }
 
 bool Scanner::isAtEnd()
@@ -96,10 +96,21 @@ void Scanner::scanToken()
         if (match('/'))
             while (peek() != '\n' && !isAtEnd())
                 advance();
+        else if (match('*'))
+        {
+            while (peek() != '*' && !isAtEnd())
+            {
+                advance();
+                if(peek() == '*' && peekNext() == '/') {
+                    advance();
+                    advance();
+                    break;
+                }
+            }
+        }
         else
             addToken(TokenType::SLASH);
         break;
-    // TODO: add support for /* ..... */
     case ' ':
     case '\r':
     case '\t':
@@ -164,7 +175,7 @@ void Scanner::addToken(TokenType type)
 void Scanner::addToken(TokenType type, const std::string &literal)
 {
     const std::string text = source.substr(start, current - start);
-    tokens.push_back(std::unique_ptr<Token>(new Token(type, text, line)));
+    tokens.push_back(std::make_shared<Token>(type, text, line));
 }
 
 void Scanner::getString()
@@ -190,7 +201,7 @@ void Scanner::getString()
 void Scanner::addStrToken(const std::string &literal)
 {
     const std::string text = source.substr(start, current - start);
-    tokens.push_back(std::unique_ptr<StrToken>(new StrToken(text, literal, line)));
+    tokens.push_back(std::make_shared<StrToken>(text, literal, line));
 }
 
 bool Scanner::isDigit(const char &c)
@@ -215,7 +226,7 @@ void Scanner::getNum()
 void Scanner::addNumToken(const std::string &literal)
 {
     const std::string text = source.substr(start, current - start);
-    tokens.push_back(std::unique_ptr<NumToken>(new NumToken(text, std::stod(literal), line)));
+    tokens.push_back(std::make_shared<NumToken>(text, std::stod(literal), line));
 }
 
 bool Scanner::isAlpha(const char &c)
