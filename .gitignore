@@ -9,6 +9,7 @@ CMakeFiles/*
 build/*
 
 Makefile
+ccloxx
 
 # Prerequisites
 *.d
