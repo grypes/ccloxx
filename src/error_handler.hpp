@@ -6,24 +6,24 @@
 
 namespace lox
 {
-class ErrorHandler
-{
-public:
-    struct Info
+    class ErrorHandler
     {
-        size_t line;
-        std::string where;
-        std::string message;
+    public:
+        struct Info
+        {
+            size_t line;
+            std::string where;
+            std::string message;
+        };
+
+        ErrorHandler();
+        void report();
+        void add(size_t line_, const std::string &where_, const std::string &message_);
+
+    private:
+        std::vector<Info> errorList;
+        bool foundError;
     };
-
-    ErrorHandler();
-    void report();
-    void add(size_t line_, const std::string &where_, const std::string &message_);
-
-private:
-    std::vector<Info> errorList;
-    bool foundError;
-};
 } // namespace lox
 
 #endif

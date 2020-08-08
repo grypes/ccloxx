@@ -13,42 +13,42 @@
 namespace lox
 {
 
-static void run(const std::string &source, Interpreter &interpreter)
-{
-    ErrorHandler errors;
-
-    Scanner scanner(source, errors);
-    TokenList tokens = scanner.scanTokens();
-
-    Parser parser(std::move(tokens), errors);
-    StmtList stmts = parser.parse();
-
-    interpreter.interpret(stmts);
-}
-
-static void runFile(const std::string &path)
-{
-    std::ifstream file(path);
-    std::ostringstream ostr;
-    ostr << file.rdbuf();
-    file.close();
-
-    Interpreter interpreter;
-    run(ostr.str(), interpreter);
-}
-
-static void runPrompt()
-{
-    Interpreter interpreter;
-    while (true)
+    static void run(const std::string &source, Interpreter &interpreter)
     {
-        std::cout << ">";
+        ErrorHandler errors;
 
-        std::string line;
-        getline(std::cin, line);
-        run(line, interpreter);
+        Scanner scanner(source, errors);
+        TokenList tokens = scanner.scanTokens();
+
+        Parser parser(std::move(tokens), errors);
+        StmtList stmts = parser.parse();
+
+        interpreter.interpret(stmts);
     }
-}
+
+    static void runFile(const std::string &path)
+    {
+        std::ifstream file(path);
+        std::ostringstream ostr;
+        ostr << file.rdbuf();
+        file.close();
+
+        Interpreter interpreter;
+        run(ostr.str(), interpreter);
+    }
+
+    static void runPrompt()
+    {
+        Interpreter interpreter;
+        while (true)
+        {
+            std::cout << ">";
+
+            std::string line;
+            getline(std::cin, line);
+            run(line, interpreter);
+        }
+    }
 } // namespace lox
 
 int main(int argc, const char **argv)

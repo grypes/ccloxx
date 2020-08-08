@@ -101,7 +101,8 @@ void Scanner::scanToken()
             while (peek() != '*' && !isAtEnd())
             {
                 advance();
-                if(peek() == '*' && peekNext() == '/') {
+                if (peek() == '*' && peekNext() == '/')
+                {
                     advance();
                     advance();
                     break;
