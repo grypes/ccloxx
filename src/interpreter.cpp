@@ -205,7 +205,7 @@ void Interpreter::visit(CallExpr *expr)
     // if(arguments.size() != callFunc->arity())
     // error
 
-    call(callFunc, std::move(arguments));
+    this->call(callFunc, std::move(arguments));
 }
 
 void Interpreter::call(FuncObj *callfunc, ObjList &&arguments)
