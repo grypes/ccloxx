@@ -12,13 +12,14 @@
 // ----------- closure  -----------
 
 fun line_conf(a, b) {
+    var c = 1;  // initialize a = 1, b = 1
     fun line(x) {
-        return a*x + b;
+        return a*x + b + c;
     }
     return line;
 }
 
 var line1 = line_conf(1, 1);
 var line2 = line_conf(4, 5);
-print line1(5); // "6".
-print line2(4); // "21".
+print line1(5); // "7".
+print line2(4); // "22".

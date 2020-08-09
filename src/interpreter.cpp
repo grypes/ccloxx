@@ -33,7 +33,7 @@ void Interpreter::executeBlock(StmtList &statements_, EnvPtr env_)
     env = previous;
 }
 
-void Interpreter::visit(ClassStmt *stmt) // Testing now
+void Interpreter::visit(ClassStmt *stmt) // Under develop
 {
     std::unique_ptr<ClassObj> klass = std::unique_ptr<ClassObj>(new ClassObj(stmt, env));
     for (std::shared_ptr<Stmt> method_ : stmt->methods)
