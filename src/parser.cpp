@@ -18,12 +18,30 @@ StmtList Parser::parse()
 
 StmtPtr Parser::declaration()
 {
-    if (match(TokenType::FUN))
+    if (match(TokenType::CLASS))
+        return classDecl("class");
+    else if (match(TokenType::FUN))
         return function("function");
     else if (match(TokenType::VAR))
         return varDecl();
 
     return statement();
+}
+
+StmtPtr Parser::classDecl(const std::string &type)
+{
+    TokenPtr name = consume(TokenType::IDENTIFIER, "Expect " + type + " name.");
+    consume(TokenType::LEFT_BRACE, "Expect '{' before " + type + " body.");
+
+    StmtList methods;
+    while (!check(TokenType::RIGHT_BRACE) && !isAtEnd())
+    {
+        advance();
+        methods.push_back(function("method"));
+    }
+    consume(TokenType::RIGHT_BRACE, "Expect '}' before " + type + " body.");
+
+    return std::make_shared<ClassStmt>(name, std::move(methods));
 }
 
 StmtPtr Parser::function(const std::string &type)
@@ -351,6 +369,11 @@ ExprPtr Parser::call()
         if (match(TokenType::LEFT_PAREN))
         {
             expr = finishCall(expr);
+        }
+        else if(match(TokenType::DOT))
+        {
+            TokenPtr name = consume(TokenType::IDENTIFIER, "Expect property name after '.'.");
+            expr = std::make_shared<GetExpr>(expr, name);
         }
         else
         {

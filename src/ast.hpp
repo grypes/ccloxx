@@ -22,6 +22,7 @@ namespace lox
     class LogicExpr;
     class UnaryExpr;
     class VarExpr;
+    class GetExpr;
 
     class ExprVisitor
     {
@@ -37,6 +38,7 @@ namespace lox
         virtual void visit(LogicExpr *expr) = 0;
         virtual void visit(VarExpr *expr) = 0;
         virtual void visit(UnaryExpr *expr) = 0;
+        virtual void visit(GetExpr *expr) = 0;
     };
 
     enum class ExprType
@@ -51,7 +53,8 @@ namespace lox
         StrLiteralExprType,
         LogicalExprType,
         UnaryExprType,
-        VarExprType
+        VarExprType,
+        GetExprType
     };
 
     class Expr
@@ -198,11 +201,25 @@ namespace lox
         void accept(ExprVisitor &visitor) override { visitor.visit(this); }
     };
 
+    class GetExpr : public Expr
+    {
+    public:
+        std::shared_ptr<Expr> object;
+        TokenPtr name;
+
+        GetExpr(std::shared_ptr<Expr> object_, TokenPtr name_) : Expr(ExprType::GetExprType),
+                                                                 object(object_),
+                                                                 name(name_) {}
+
+        void accept(ExprVisitor &visitor) override { visitor.visit(this); }
+    };
+
     /*****************************************/
 
     class BlockStmt;
     class ExprStmt;
     class FuncStmt;
+    class ClassStmt;
     class IfStmt;
     class PrintStmt;
     class ReturnStmt;
@@ -215,6 +232,7 @@ namespace lox
         virtual void visit(BlockStmt *stmt) = 0;
         virtual void visit(ExprStmt *stmt) = 0;
         virtual void visit(FuncStmt *stmt) = 0;
+        virtual void visit(ClassStmt *stmt) = 0;
         virtual void visit(IfStmt *stmt) = 0;
         virtual void visit(PrintStmt *stmt) = 0;
         virtual void visit(ReturnStmt *stmt) = 0;
@@ -271,6 +289,20 @@ namespace lox
                                                                name(name_),
                                                                params(params_),
                                                                body(body_) {}
+
+        void accept(StmtVisitor &visitor) override { visitor.visit(this); }
+    };
+
+    class ClassStmt : public Stmt
+    {
+    public:
+        TokenPtr name;
+        std::vector<std::shared_ptr<Stmt>> methods;
+
+        ClassStmt(TokenPtr name_,
+                  std::vector<std::shared_ptr<Stmt>> &&methods_) : Stmt(StmtType::ClassStmtType),
+                                                                   name(name_),
+                                                                   methods(methods_) {}
 
         void accept(StmtVisitor &visitor) override { visitor.visit(this); }
     };

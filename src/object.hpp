@@ -19,6 +19,7 @@ namespace lox
         NilType,
         StrType,
         FuncType,
+        ClassType,
     };
 
     class Object
@@ -163,6 +164,37 @@ namespace lox
         {
             return declaration->params.size();
         };
+    };
+
+    class ClassObj : public Object
+    {
+    public:
+        ClassStmt *declaration;
+
+        std::shared_ptr<Env> closure;
+
+        std::unordered_map<std::string, std::unique_ptr<Object>> methods;
+
+        ClassObj(ClassStmt *declare_, std::shared_ptr<Env> closure_) : Object(ObjectType::ClassType),
+                                                                       declaration(declare_),
+                                                                       closure(closure_) {}
+
+        bool equals(Object *other) const override { return other->type == ObjectType::ClassType; }
+
+        std::unique_ptr<Object> clone() const override
+        {       
+            std::unique_ptr<ClassObj> cloneClass = std::unique_ptr<ClassObj>(new ClassObj(declaration, closure));
+            for(auto &item : methods) 
+            {
+                cloneClass->methods[item.first] = item.second->clone();
+            }
+            return cloneClass;
+        }
+
+        std::string toString() const override
+        {
+            return "<class " + declaration->name->lexeme + ">";
+        }
     };
 
 } // namespace lox

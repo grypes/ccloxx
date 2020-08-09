@@ -1,22 +1,15 @@
-fun makeCounter() {
-  var i = 0;
-  fun count() {
-    i = i + 1;
-    print i;
-  }
+    class Cat
+    {
+        fun eat() {
+            return 666;
+        }
+    }
 
-  return count;
-}
+    var cat = Cat();
+    var fish = cat.eat();
+    print fish;
 
-var counter1 = makeCounter();
-counter1(); // "1".
-counter1(); // "2".
-counter1(); // "3".
-
-var counter2 = makeCounter();
-counter2(); // "1".
-
-// ----------- another closure -----------
+// ----------- closure  -----------
 
 fun line_conf(a, b) {
     fun line(x) {

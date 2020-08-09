@@ -11,9 +11,10 @@ namespace lox
     class Env
     {
         std::shared_ptr<Env> enclosing;
-        std::unordered_map<std::string, std::unique_ptr<Object>> values;
 
     public:
+        std::unordered_map<std::string, std::unique_ptr<Object>> values;
+        
         Env() : enclosing(nullptr) {}
 
         Env(std::shared_ptr<Env> enclosing_) : enclosing(enclosing_) {}

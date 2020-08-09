@@ -29,6 +29,7 @@ namespace lox
         ObjPtr evaluate(Expr *expr);
 
         void call(FuncObj *callfunc, ObjList &&arguments);
+        ObjPtr instance(ClassObj *callfunc, ObjList &&arguments);
 
         /// Expressions.
         void visit(AssignExpr *expr) override;
@@ -42,11 +43,14 @@ namespace lox
         void visit(LogicExpr *expr) override;
         void visit(UnaryExpr *expr) override;
         void visit(VarExpr *expr) override;
+        void visit(GetExpr *expr) override;
+        ObjPtr getMember(ClassObj *object, std::string name);
 
         /// Statements.
         void visit(BlockStmt *stmt) override;
         void executeBlock(StmtList &statements_, EnvPtr env_);
         void visit(ExprStmt *stmt) override;
+        void visit(ClassStmt *stmt) override;
         void visit(FuncStmt *stmt) override;
         void visit(IfStmt *stmt) override;
         void visit(PrintStmt *stmt) override;

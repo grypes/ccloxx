@@ -34,6 +34,8 @@ namespace lox
 
         StmtPtr declaration();
 
+        StmtPtr classDecl(const std::string &type);
+
         StmtPtr function(const std::string &type);
 
         StmtPtr varDecl();

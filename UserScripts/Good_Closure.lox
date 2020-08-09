@@ -1,0 +1,26 @@
+fun get_fish() {
+    class Cat
+    {
+        func eat() {
+            return 666;
+        }
+    }
+
+    var cat = Cat();
+    return cat.eat();
+}
+
+fun line_conf(a, b) {
+    //////////////////////////////
+    // Use class member do stuff
+    //////////////////////////////
+    var fish = get_fish();
+
+    fun line(x) {
+        return a*x + b + fish;
+    }
+    return line;
+}
+
+var line1 = line_conf(1, -1);
+print line1(1); // "666"

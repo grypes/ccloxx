@@ -33,6 +33,19 @@ void Interpreter::executeBlock(StmtList &statements_, EnvPtr env_)
     env = previous;
 }
 
+void Interpreter::visit(ClassStmt *stmt) // Testing now
+{
+    std::unique_ptr<ClassObj> klass = std::unique_ptr<ClassObj>(new ClassObj(stmt, env));
+    for (std::shared_ptr<Stmt> method_ : stmt->methods)
+    {
+        FuncStmt *method = static_cast<FuncStmt *>(method_.get());
+        std::unique_ptr<Object> function = std::unique_ptr<FuncObj>(new FuncObj(method, env));
+        klass->methods[method->name->lexeme] = std::move(function);
+    }
+
+    env->define(stmt->name->lexeme, std::move(klass));
+}
+
 void Interpreter::visit(FuncStmt *stmt)
 {
     std::unique_ptr<Object> function = std::unique_ptr<FuncObj>(new FuncObj(stmt, env));
@@ -86,7 +99,9 @@ void Interpreter::visit(WhileStmt *stmt)
 void Interpreter::visit(ReturnStmt *stmt)
 {
     if (stmt->value != nullptr)
+    {
         value = evaluate(stmt->value.get());
+    }
     else
         value = std::unique_ptr<Object>(new NilObj());
     throw BoolObj(true);
@@ -201,11 +216,16 @@ void Interpreter::visit(CallExpr *expr)
     for (auto arg : expr->arguments)
         arguments.push_back(evaluate(arg.get()));
 
-    FuncObj *callFunc = static_cast<FuncObj *>(callee.get());
-    // if(arguments.size() != callFunc->arity())
-    // error
-
-    this->call(callFunc, std::move(arguments));
+    if (callee->type == ObjectType::FuncType)
+    {
+        FuncObj *callFunc = static_cast<FuncObj *>(callee.get());
+        call(callFunc, std::move(arguments));
+    }
+    else if (callee->type == ObjectType::ClassType)
+    {
+        ClassObj *callClass = static_cast<ClassObj *>(callee.get());
+        value = instance(callClass, std::move(arguments));
+    }
 }
 
 void Interpreter::call(FuncObj *callfunc, ObjList &&arguments)
@@ -217,15 +237,42 @@ void Interpreter::call(FuncObj *callfunc, ObjList &&arguments)
     {
         new_env->define(callfunc->declaration->params[i].get()->lexeme, std::move(arguments[i]));
     }
+
     try
     {
         executeBlock(callfunc->declaration->body, new_env);
     }
     catch (BoolObj &)
     {
+        ///////// destructor test /////////        
+        if (value->type != ObjectType::FuncType)
+        {
+            for (auto &item : env->values)
+            {
+                if (item.second->type == ObjectType::ClassType)
+                {
+                    std::cout << "Destruct class: " + item.first << std::endl;
+                    env->values.erase(item.first);
+                    break;
+                }
+            }
+        }
+        
+        ///////////////////////////////////
+
         env = previous;
         return;
     }
+}
+
+ObjPtr Interpreter::instance(ClassObj *callfunc, ObjList &&arguments)
+{
+    EnvPtr new_env = std::make_shared<Env>(callfunc->closure);
+    EnvPtr previous = env;
+
+    std::cout << "Instance class: " + callfunc->toString() << std::endl;
+
+    return env->get(callfunc->declaration->name->lexeme)->clone();
 }
 
 void Interpreter::visit(GroupingExpr *expr)
@@ -296,4 +343,16 @@ void Interpreter::visit(UnaryExpr *expr)
 void Interpreter::visit(VarExpr *expr)
 {
     value = env->get(expr->name->lexeme)->clone();
+}
+
+void Interpreter::visit(GetExpr *expr)
+{
+    value = evaluate(expr->object.get());
+    ClassObj *object = static_cast<ClassObj *>(value.get());
+    value = getMember(object, expr->name->lexeme);
+}
+
+ObjPtr Interpreter::getMember(ClassObj *object, std::string name)
+{
+    return object->methods.find(name)->second->clone();
 }
