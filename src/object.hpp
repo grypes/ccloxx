@@ -182,9 +182,9 @@ namespace lox
         bool equals(Object *other) const override { return other->type == ObjectType::ClassType; }
 
         std::unique_ptr<Object> clone() const override
-        {       
+        {
             std::unique_ptr<ClassObj> cloneClass = std::unique_ptr<ClassObj>(new ClassObj(declaration, closure));
-            for(auto &item : methods) 
+            for (auto &item : methods)
             {
                 cloneClass->methods[item.first] = item.second->clone();
             }

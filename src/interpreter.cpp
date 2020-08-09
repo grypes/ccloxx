@@ -244,7 +244,7 @@ void Interpreter::call(FuncObj *callfunc, ObjList &&arguments)
     }
     catch (BoolObj &)
     {
-        ///////// destructor test /////////        
+        ///////// destructor test /////////
         if (value->type != ObjectType::FuncType)
         {
             for (auto &item : env->values)
@@ -257,7 +257,7 @@ void Interpreter::call(FuncObj *callfunc, ObjList &&arguments)
                 }
             }
         }
-        
+
         ///////////////////////////////////
 
         env = previous;

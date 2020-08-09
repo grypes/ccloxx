@@ -370,7 +370,7 @@ ExprPtr Parser::call()
         {
             expr = finishCall(expr);
         }
-        else if(match(TokenType::DOT))
+        else if (match(TokenType::DOT))
         {
             TokenPtr name = consume(TokenType::IDENTIFIER, "Expect property name after '.'.");
             expr = std::make_shared<GetExpr>(expr, name);
