@@ -1,13 +1,13 @@
-    class Cat
-    {
-        fun eat() {
-            return 666;
-        }
-    }
+//    class Cat
+//    {
+//        fun eat() {
+//            return 666;
+//        }
+//    }
 
-    var cat = Cat();
-    var fish = cat.eat();
-    print fish;
+//    var cat = Cat();
+//    var fish = cat.eat();
+//    print fish;
 
 // ----------- closure  -----------
 
